@@ -187,19 +187,21 @@ function FEN_getOrCreateTargetSheetEnsuringFenHeaders_() {
     sheet.setFrozenRows(1);
   }
 
-  // Ensure FEN-related columns are present; append any that are missing
+  // Ensure FEN-related columns are present; append any that are missing to the far right
   var required = [
     'FEN','FEN_board','FEN_active','FEN_castle','FEN_ep','FEN_halfmove','FEN_fullmove',
     'FEN_r8','FEN_r7','FEN_r6','FEN_r5','FEN_r4','FEN_r3','FEN_r2','FEN_r1'
   ];
 
-  var currentHeaders = sheet.getRange(1, 1, 1, sheet.getLastColumn() || 1).getValues()[0];
+  var lastCol = sheet.getLastColumn() || 1;
+  var currentHeaders = sheet.getRange(1, 1, 1, lastCol).getValues()[0];
+  var missing = [];
   for (var i = 0; i < required.length; i++) {
-    if (currentHeaders.indexOf(required[i]) === -1) {
-      sheet.insertColumnAfter(sheet.getLastColumn() || 1);
-      sheet.getRange(1, sheet.getLastColumn()).setValue(required[i]);
-      currentHeaders = sheet.getRange(1, 1, 1, sheet.getLastColumn()).getValues()[0];
-    }
+    if (currentHeaders.indexOf(required[i]) === -1) missing.push(required[i]);
+  }
+  if (missing.length) {
+    sheet.insertColumnsAfter(lastCol, missing.length);
+    sheet.getRange(1, lastCol + 1, 1, missing.length).setValues([missing]);
   }
 
   sheet.setFrozenRows(1);
